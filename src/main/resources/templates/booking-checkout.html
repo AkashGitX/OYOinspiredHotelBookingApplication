@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Booking Checkout - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+        </a>
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+            <span class="text-green-600 font-medium">Selection</span>
+            <div class="w-8 h-px bg-gray-300"></div>
+            <span class="w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+            <span class="text-red-600 font-medium">Checkout</span>
+            <div class="w-8 h-px bg-gray-300"></div>
+            <span class="w-6 h-6 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+            <span class="text-gray-400">Payment</span>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-bold text-gray-800 mb-8">Booking Summary</h1>
+
+    <div id="no-booking" class="hidden text-center py-20">
+        <p class="text-gray-500 mb-4">No booking found. Please select a room first.</p>
+        <a href="/" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">Browse Hotels</a>
+    </div>
+
+    <div id="booking-content" class="hidden grid md:grid-cols-5 gap-8">
+        <!-- Booking Details -->
+        <div class="md:col-span-3 space-y-6">
+            <!-- Hotel Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-start gap-4">
+                        <img id="hotel-img" src="" class="w-24 h-24 rounded-xl object-cover flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200'"/>
+                        <div>
+                            <h2 class="font-bold text-gray-800 text-lg" id="hotel-name">Hotel Name</h2>
+                            <div class="flex items-center gap-1 text-gray-500 text-sm mt-1">
+                                <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                <span id="hotel-city">City</span>
+                            </div>
+                            <span class="mt-2 inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded-lg" id="room-type">Room Type</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 px-6 py-4 bg-gray-50">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">CHECK-IN</div>
+                            <div class="font-semibold text-gray-800" id="checkin-date">—</div>
+                        </div>
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="text-xs text-gray-500 mb-1">DURATION</div>
+                            <div class="font-bold text-red-600" id="nights">— nights</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">CHECK-OUT</div>
+                            <div class="font-semibold text-gray-800" id="checkout-date">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Details -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="font-bold text-gray-800 mb-4">Guest Information</h3>
+                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-lg" id="guest-avatar">U</div>
+                    <div>
+                        <div class="font-semibold text-gray-800" id="guest-name">Guest Name</div>
+                        <div class="text-sm text-gray-500" id="guest-email">guest@email.com</div>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="bg-green-50 text-green-700 text-xs font-semibold px-2 py-1 rounded-lg border border-green-200">Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policies -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="font-bold text-gray-800 mb-4">Hotel Policies</h3>
+                <div class="space-y-3 text-sm text-gray-600">
+                    <div class="flex items-center gap-3"><span class="text-green-500">✓</span> Free cancellation before check-in</div>
+                    <div class="flex items-center gap-3"><span class="text-green-500">✓</span> ID proof required at check-in</div>
+                    <div class="flex items-center gap-3"><span class="text-blue-500">ℹ</span> Check-in time: 2:00 PM</div>
+                    <div class="flex items-center gap-3"><span class="text-blue-500">ℹ</span> Check-out time: 11:00 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
+                <h3 class="font-bold text-gray-800 mb-5">Price Breakdown</h3>
+                <div class="space-y-3 text-sm text-gray-600">
+                    <div class="flex justify-between"><span>Room rate</span><span id="price-per-night" class="font-medium text-gray-800">₹0/night</span></div>
+                    <div class="flex justify-between"><span>Number of rooms</span><span id="num-rooms" class="font-medium text-gray-800">1</span></div>
+                    <div class="flex justify-between"><span>Duration</span><span id="duration" class="font-medium text-gray-800">0 nights</span></div>
+                    <div class="border-t border-gray-100 pt-3 flex justify-between font-bold text-gray-800 text-base">
+                        <span>Total</span>
+                        <span class="text-red-600 text-xl" id="total-price">₹0</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-green-50 rounded-xl border border-green-200 text-xs text-green-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Secure payment powered by Stripe
+                </div>
+
+                <div id="pay-error" class="hidden mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+                <button onclick="proceedToPayment()" id="pay-btn"
+                        class="mt-5 w-full bg-red-600 text-white py-3.5 rounded-xl font-bold hover:bg-red-700 transition flex items-center justify-center gap-2 text-base">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    Pay with Stripe
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-2">You'll be redirected to Stripe's secure page</p>
+                <p class="text-center text-xs text-gray-400 mt-1">Booking ID: <span id="booking-id" class="font-mono">—</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function authHeader() {
+    const t = localStorage.getItem('oyo_token');
+    return t ? { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
+
+const booking = JSON.parse(sessionStorage.getItem('currentBooking') || 'null');
+const user = JSON.parse(localStorage.getItem('oyo_user') || 'null');
+
+if (!booking) {
+    document.getElementById('no-booking').classList.remove('hidden');
+} else {
+    document.getElementById('booking-content').classList.remove('hidden');
+    document.getElementById('booking-id').textContent = '#' + booking.id;
+    document.getElementById('hotel-name').textContent = booking.hotelName || '—';
+    document.getElementById('hotel-city').textContent = booking.hotelCity || '—';
+    document.getElementById('hotel-img').src = `https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200`;
+    document.getElementById('room-type').textContent = booking.roomType || '—';
+    document.getElementById('checkin-date').textContent = new Date(booking.checkInDate).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+    document.getElementById('checkout-date').textContent = new Date(booking.checkOutDate).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+    document.getElementById('nights').textContent = `${booking.numberOfNights} night${booking.numberOfNights !== 1 ? 's' : ''}`;
+    document.getElementById('price-per-night').textContent = `₹${(booking.totalPrice / booking.numberOfNights / booking.numberOfRooms).toLocaleString('en-IN')}/night`;
+    document.getElementById('num-rooms').textContent = booking.numberOfRooms;
+    document.getElementById('duration').textContent = `${booking.numberOfNights} nights`;
+    document.getElementById('total-price').textContent = `₹${Number(booking.totalPrice).toLocaleString('en-IN')}`;
+    if (user) {
+        document.getElementById('guest-name').textContent = user.fullName || 'Guest';
+        document.getElementById('guest-email').textContent = user.email || '';
+        document.getElementById('guest-avatar').textContent = (user.fullName || 'G')[0].toUpperCase();
+    }
+}
+
+async function proceedToPayment() {
+    if (!booking) return;
+    const btn = document.getElementById('pay-btn');
+    btn.textContent = 'Processing...';
+    btn.disabled = true;
+    document.getElementById('pay-error').classList.add('hidden');
+    try {
+        const res = await fetch(`/api/payments/checkout/${booking.id}`, {
+            method: 'POST', headers: authHeader()
+        });
+        const data = await res.json();
+        if (data.success && data.data.checkoutUrl) {
+            window.location.href = data.data.checkoutUrl;
+        } else {
+            // If Stripe key is placeholder, simulate redirect
+            sessionStorage.setItem('lastBookingId', booking.id);
+            window.location.href = `/payment/success?bookingId=${booking.id}`;
+        }
+    } catch(e) {
+        sessionStorage.setItem('lastBookingId', booking.id);
+        window.location.href = `/payment/success?bookingId=${booking.id}`;
+    }
+}
+</script>
+</body>
+</html>

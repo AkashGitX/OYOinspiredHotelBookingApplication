@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>OYO Clone - Find Hotels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center gap-2">
+                <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+                <span class="text-gray-700 font-semibold hidden sm:block">Hotel Booking</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div id="guest-nav" class="flex items-center gap-3">
+                    <a href="/login" class="text-gray-700 hover:text-red-600 font-medium text-sm">Sign In</a>
+                    <a href="/register" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium text-sm transition">Sign Up</a>
+                </div>
+                <div id="user-nav" class="hidden items-center gap-3">
+                    <a href="/profile" class="text-gray-600 hover:text-red-600 text-sm font-medium hidden" id="nav-profile-link">My Trips</a>
+                    <a href="/owner/dashboard" class="text-gray-600 hover:text-red-600 text-sm font-medium hidden" id="nav-owner-link">My Hotels</a>
+                    <div class="w-px h-5 bg-gray-200"></div>
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-sm" id="nav-avatar">U</div>
+                        <span class="text-gray-700 text-sm font-medium" id="nav-name">User</span>
+                        <div class="absolute right-0 top-10 bg-white shadow-xl rounded-xl w-44 py-2 border border-gray-100 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                            <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">Profile</a>
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero / Search -->
+<div class="bg-gradient-to-r from-red-600 to-red-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Find your perfect stay</h1>
+        <p class="text-red-100 text-lg mb-10">Discover amazing hotels across India at the best prices</p>
+        <div class="max-w-2xl mx-auto">
+            <div class="flex bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="flex items-center pl-4 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <input type="text" id="search-input" placeholder="Search by city or hotel name..." 
+                       class="flex-1 px-4 py-4 text-gray-800 outline-none text-base placeholder-gray-400"/>
+                <button onclick="searchHotels()" class="bg-red-600 text-white px-8 py-4 font-semibold hover:bg-red-700 transition text-base">
+                    Search
+                </button>
+            </div>
+            <div id="search-suggestions" class="hidden mt-2 flex flex-wrap gap-2 justify-center">
+                <button onclick="filterByCity('Mumbai')" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition">Mumbai</button>
+                <button onclick="filterByCity('Delhi')" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition">Delhi</button>
+                <button onclick="filterByCity('Goa')" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition">Goa</button>
+                <button onclick="filterByCity('Bangalore')" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition">Bangalore</button>
+                <button onclick="filterByCity('Chennai')" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition">Chennai</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats bar -->
+<div class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex gap-8 overflow-x-auto">
+        <div class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
+            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Verified Hotels
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Secure Booking
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
+            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            Best Price Guarantee
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            24/7 Support
+        </div>
+    </div>
+</div>
+
+<!-- Hotels Section -->
+<div class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800" id="section-title">All Hotels</h2>
+            <p class="text-gray-500 text-sm mt-1" id="section-sub">Showing all available properties</p>
+        </div>
+        <button id="clear-search-btn" class="hidden text-sm text-red-600 hover:underline" onclick="clearSearch()">Clear search</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center py-20">
+        <div class="text-center">
+            <svg class="w-12 h-12 animate-spin text-red-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <p class="text-gray-500">Loading hotels...</p>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden text-center py-20">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">No hotels found</h3>
+        <p class="text-gray-400">Try searching a different city or clear your search</p>
+        <button onclick="clearSearch()" class="mt-4 text-red-600 hover:underline text-sm">View all hotels</button>
+    </div>
+
+    <!-- Grid -->
+    <div id="hotels-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+</div>
+
+<footer class="bg-white border-t border-gray-200 mt-16">
+    <div class="max-w-7xl mx-auto px-4 py-8 text-center text-gray-500 text-sm">
+        © 2024 OYO Clone. All rights reserved.
+    </div>
+</footer>
+
+<script>
+let allHotels = [];
+
+function authHeader() {
+    const token = localStorage.getItem('oyo_token');
+    return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+function logout() {
+    localStorage.removeItem('oyo_token');
+    localStorage.removeItem('oyo_user');
+    window.location.href = '/login';
+}
+
+function setupNav() {
+    const token = localStorage.getItem('oyo_token');
+    const user = JSON.parse(localStorage.getItem('oyo_user') || 'null');
+    const guestNav = document.getElementById('guest-nav');
+    const userNav = document.getElementById('user-nav');
+    if (token && user) {
+        guestNav.classList.add('hidden');
+        userNav.classList.remove('hidden');
+        userNav.classList.add('flex');
+        document.getElementById('nav-avatar').textContent = (user.fullName || 'U')[0].toUpperCase();
+        document.getElementById('nav-name').textContent = user.fullName || 'User';
+        if (user.role === 'HOTEL_OWNER') {
+            document.getElementById('nav-owner-link').classList.remove('hidden');
+        } else {
+            document.getElementById('nav-profile-link').classList.remove('hidden');
+        }
+    }
+}
+
+function renderHotelCard(hotel) {
+    const stars = Math.round(hotel.averageRating || 0);
+    const starsHtml = Array(5).fill(0).map((_, i) => 
+        `<svg class="w-3.5 h-3.5 ${i < stars ? 'text-yellow-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`
+    ).join('');
+    const minPrice = hotel.rooms && hotel.rooms.length ? Math.min(...hotel.rooms.map(r => r.pricePerNight)) : null;
+    const img =
+        hotel.imagePath ||
+        hotel.imageUrl ||
+        `https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=250&fit=crop`;
+    return `
+    <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100" onclick="window.location.href='/hotels/${hotel.id}'">
+        <div class="relative overflow-hidden h-48">
+            <img src="${img}" alt="${hotel.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=250&fit=crop'"/>
+            <div class="absolute top-3 left-3">
+                <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg">OYO</span>
+            </div>
+            ${minPrice ? `<div class="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-gray-800">From ₹${minPrice.toLocaleString('en-IN')}/night</div>` : ''}
+        </div>
+        <div class="p-4">
+            <h3 class="font-semibold text-gray-800 text-base leading-snug mb-1 line-clamp-1">${hotel.name}</h3>
+            <div class="flex items-center gap-1 text-gray-500 text-xs mb-2">
+                <svg class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                ${hotel.city}
+            </div>
+            <div class="flex items-center gap-1 mb-3">
+                ${starsHtml}
+                <span class="text-xs text-gray-500 ml-1">${hotel.totalReviews > 0 ? `(${hotel.totalReviews} reviews)` : 'New'}</span>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+                ${(hotel.amenities || '').split(',').slice(0,3).map(a => `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">${a.trim()}</span>`).join('')}
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                <div>
+                    ${minPrice ? `<span class="text-red-600 font-bold text-base">₹${minPrice.toLocaleString('en-IN')}</span><span class="text-gray-400 text-xs">/night</span>` : '<span class="text-gray-400 text-xs">Contact for pricing</span>'}
+                </div>
+                <button class="text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-lg font-medium transition">Book Now</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+async function loadHotels(url = '/api/hotels') {
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('hotels-grid').classList.add('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('search-suggestions').classList.remove('hidden');
+    try {
+        const res = await fetch(url, { headers: authHeader() });
+        const data = await res.json();
+        allHotels = data.data || [];
+        document.getElementById('loading').classList.add('hidden');
+        if (allHotels.length === 0) {
+            document.getElementById('empty-state').classList.remove('hidden');
+        } else {
+            const grid = document.getElementById('hotels-grid');
+            grid.innerHTML = allHotels.map(renderHotelCard).join('');
+            grid.classList.remove('hidden');
+        }
+        document.getElementById('section-sub').textContent = `Showing ${allHotels.length} propert${allHotels.length === 1 ? 'y' : 'ies'}`;
+    } catch (err) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+    }
+}
+
+function searchHotels() {
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) { loadHotels(); return; }
+    document.getElementById('section-title').textContent = `Results for "${q}"`;
+    document.getElementById('clear-search-btn').classList.remove('hidden');
+    loadHotels(`/api/hotels?search=${encodeURIComponent(q)}`);
+}
+
+function filterByCity(city) {
+    document.getElementById('search-input').value = city;
+    document.getElementById('section-title').textContent = `Hotels in ${city}`;
+    document.getElementById('clear-search-btn').classList.remove('hidden');
+    loadHotels(`/api/hotels?city=${encodeURIComponent(city)}`);
+}
+
+function clearSearch() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('section-title').textContent = 'All Hotels';
+    document.getElementById('clear-search-btn').classList.add('hidden');
+    loadHotels();
+}
+
+document.getElementById('search-input').addEventListener('keydown', e => e.key === 'Enter' && searchHotels());
+
+setupNav();
+loadHotels();
+</script>
+</body>
+</html>

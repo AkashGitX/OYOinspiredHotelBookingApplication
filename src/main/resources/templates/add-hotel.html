@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add Hotel - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <a href="/owner/dashboard" class="flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+            <span class="text-sm text-gray-600 font-medium hidden sm:block">Owner Panel</span>
+        </a>
+        <button onclick="logout()" class="text-gray-500 hover:text-red-600 text-sm">Sign Out</button>
+    </div>
+</nav>
+
+<div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Add New Hotel</h1>
+        <p class="text-gray-500 text-sm mb-6">Upload your hotel image and details.</p>
+
+        <div id="hotel-success" class="hidden mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm"></div>
+        <div id="hotel-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+        <form id="add-hotel-form" class="space-y-5" enctype="multipart/form-data">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Hotel Name *</label>
+                    <input type="text" id="h-name" required placeholder="OYO Grand Palace"
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                    <input type="text" id="h-city" required placeholder="Mumbai"
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="h-desc" rows="3" placeholder="Describe your hotel..."
+                          class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Amenities</label>
+                <input type="text" id="h-amenities" placeholder="WiFi, AC, Parking, Pool, Gym, Restaurant"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                <p class="text-xs text-gray-400 mt-1">Separate with commas</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Hotel Image *</label>
+                <input type="file" id="h-image" accept="image/png,image/jpeg" required
+                       class="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"/>
+                <img id="h-image-preview" class="hidden w-full h-40 mt-3 object-cover rounded-xl border border-gray-100" src="" alt="Hotel preview"/>
+            </div>
+
+            <button type="submit" id="hotel-submit-btn"
+                    class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Create Hotel
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+function logout() {
+    localStorage.removeItem('oyo_token');
+    localStorage.removeItem('oyo_user');
+    window.location.href = '/login';
+}
+
+function authHeaderBearer() {
+    const t = localStorage.getItem('oyo_token');
+    return { 'Authorization': 'Bearer ' + t };
+}
+
+const user = JSON.parse(localStorage.getItem('oyo_user') || '{}');
+if (!localStorage.getItem('oyo_token') || user.role !== 'HOTEL_OWNER') window.location.href = '/login';
+
+// Preview before upload
+(() => {
+    const input = document.getElementById('h-image');
+    const preview = document.getElementById('h-image-preview');
+    if (!input || !preview) return;
+
+    let objectUrl = null;
+    input.addEventListener('change', () => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        const file = input.files && input.files[0] ? input.files[0] : null;
+        if (!file) {
+            preview.src = '';
+            preview.classList.add('hidden');
+            objectUrl = null;
+            return;
+        }
+        objectUrl = URL.createObjectURL(file);
+        preview.src = objectUrl;
+        preview.classList.remove('hidden');
+    });
+})();
+
+document.getElementById('add-hotel-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('hotel-success').classList.add('hidden');
+    document.getElementById('hotel-error').classList.add('hidden');
+    document.getElementById('hotel-submit-btn').textContent = 'Creating...';
+    document.getElementById('hotel-submit-btn').disabled = true;
+
+    try {
+        const imageInput = document.getElementById('h-image');
+        const imageFile = imageInput?.files && imageInput.files[0] ? imageInput.files[0] : null;
+        if (!imageFile) {
+            document.getElementById('hotel-error').textContent = 'Please choose a hotel image.';
+            document.getElementById('hotel-error').classList.remove('hidden');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', document.getElementById('h-name').value);
+        formData.append('city', document.getElementById('h-city').value);
+        formData.append('description', document.getElementById('h-desc').value);
+        formData.append('amenities', document.getElementById('h-amenities').value);
+        formData.append('image', imageFile);
+
+        const res = await fetch('/api/owner/hotels', {
+            method: 'POST',
+            headers: authHeaderBearer(),
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('hotel-success').textContent = '✓ Hotel created successfully!';
+            document.getElementById('hotel-success').classList.remove('hidden');
+            document.getElementById('add-hotel-form').reset();
+            const preview = document.getElementById('h-image-preview');
+            if (preview) {
+                preview.src = '';
+                preview.classList.add('hidden');
+            }
+            setTimeout(() => window.location.href = '/owner/dashboard', 1200);
+        } else {
+            document.getElementById('hotel-error').textContent = data.message || 'Failed to create hotel.';
+            document.getElementById('hotel-error').classList.remove('hidden');
+        }
+    } catch (e) {
+        document.getElementById('hotel-error').textContent = 'Network error.';
+        document.getElementById('hotel-error').classList.remove('hidden');
+    } finally {
+        document.getElementById('hotel-submit-btn').textContent = 'Create Hotel';
+        document.getElementById('hotel-submit-btn').disabled = false;
+    }
+});
+</script>
+
+</body>
+</html>
+

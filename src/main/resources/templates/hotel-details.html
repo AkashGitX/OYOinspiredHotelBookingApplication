@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Hotel Details - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-600 hover:text-red-600 text-sm">← Back to Hotels</a>
+            <a href="/login" class="text-gray-700 hover:text-red-600 text-sm font-medium" id="nav-login">Sign In</a>
+            <button onclick="logout()" class="hidden text-red-600 text-sm font-medium" id="nav-logout">Sign Out</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Loading State -->
+<div id="loading" class="flex justify-center py-32">
+    <div class="text-center">
+        <svg class="w-12 h-12 animate-spin text-red-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <p class="text-gray-500">Loading hotel details...</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="main-content" class="hidden max-w-7xl mx-auto px-4 py-8">
+    <div class="lg:grid lg:grid-cols-3 lg:gap-8">
+        <!-- Left: Hotel Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header -->
+            <div>
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-lg mb-2 inline-block">OYO VERIFIED</span>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800" id="hotel-name">Loading...</h1>
+                        <div class="flex items-center gap-1 mt-1 text-gray-500 text-sm">
+                            <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                            <span id="hotel-city">City</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-2 rounded-xl">
+                        <span class="text-green-700 font-bold text-lg" id="hotel-rating">—</span>
+                        <div>
+                            <div id="stars-container" class="flex gap-0.5"></div>
+                            <div class="text-xs text-gray-500" id="reviews-count">0 reviews</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image -->
+            <div class="rounded-2xl overflow-hidden h-72 md:h-96 bg-gray-200">
+                <img id="hotel-image" src="" alt="" class="w-full h-full object-cover"/>
+            </div>
+
+            <!-- Description -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">About this hotel</h2>
+                <p id="hotel-description" class="text-gray-600 leading-relaxed">—</p>
+            </div>
+
+            <!-- Amenities -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Amenities</h2>
+                <div id="amenities-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+            </div>
+
+            <!-- Rooms -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Available Room Types</h2>
+                <div id="rooms-list" class="space-y-4"></div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Guest Reviews</h2>
+                <div id="reviews-list"><p class="text-gray-400 text-sm">No reviews yet.</p></div>
+
+                <!-- Review form (visible only when logged in) -->
+                <div id="review-form" class="hidden mt-6 pt-6 border-t border-gray-100">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3">Write a Review</h3>
+                    <div id="review-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                        <div class="flex gap-2" id="star-rating">
+                            <span class="review-star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="1">★</span>
+                            <span class="review-star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="2">★</span>
+                            <span class="review-star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="3">★</span>
+                            <span class="review-star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="4">★</span>
+                            <span class="review-star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="5">★</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your experience</label>
+                        <textarea id="review-comment" rows="4" placeholder="Share your experience..."
+                                  class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm resize-none"></textarea>
+                    </div>
+
+                    <button type="button" id="review-submit-btn"
+                            class="w-full bg-red-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition">
+                        Submit Review
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Booking Form -->
+        <div class="mt-8 lg:mt-0">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
+                <h2 class="text-xl font-bold text-gray-800 mb-1">Book Your Stay</h2>
+                <p class="text-gray-500 text-sm mb-5">Fill in your details to reserve</p>
+
+                <div id="booking-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
+                        <select id="room-select" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm">
+                            <option value="">Select room type</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+                            <input type="date" id="checkin" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                            <input type="date" id="checkout" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Number of Rooms</label>
+                        <input type="number" id="num-rooms" value="1" min="1" max="10"
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm"/>
+                    </div>
+
+                    <!-- Price preview -->
+                    <div id="price-preview" class="hidden bg-red-50 rounded-xl p-4 border border-red-100">
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span id="price-label">Price per night × rooms</span>
+                            <span id="price-val">₹0</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Nights</span>
+                            <span id="nights-val">0</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-gray-800 border-t border-red-200 pt-2">
+                            <span>Total</span>
+                            <span class="text-red-600 text-lg" id="total-val">₹0</span>
+                        </div>
+                    </div>
+
+                    <button onclick="initiateBooking()" id="book-btn"
+                            class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition text-base">
+                        Book Now
+                    </button>
+                    <p class="text-center text-xs text-gray-400">Free cancellation before check-in</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const hotelId = window.location.pathname.split('/').pop();
+let hotel = null;
+let rooms = [];
+let selectedRating = 0;
+
+function authHeader() {
+    const t = localStorage.getItem('oyo_token');
+    return t ? { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
+function logout() { localStorage.removeItem('oyo_token'); localStorage.removeItem('oyo_user'); window.location.href = '/login'; }
+
+function setupNav() {
+    const token = localStorage.getItem('oyo_token');
+    if (token) {
+        document.getElementById('nav-login').classList.add('hidden');
+        document.getElementById('nav-logout').classList.remove('hidden');
+    }
+}
+
+function renderStars(rating) {
+    return Array(5).fill(0).map((_, i) =>
+        `<svg class="w-4 h-4 ${i < Math.round(rating || 0) ? 'text-yellow-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`
+    ).join('');
+}
+
+const amenityIcons = {
+    'wifi': '📶', 'ac': '❄️', 'parking': '🅿️', 'pool': '🏊', 'gym': '💪',
+    'restaurant': '🍽️', 'bar': '🍺', 'spa': '💆', 'room service': '🛎️', 'laundry': '👕',
+    'conference': '🏢', 'default': '✓'
+};
+function getAmenityIcon(a) {
+    const lower = a.toLowerCase();
+    for (const [k, v] of Object.entries(amenityIcons)) {
+        if (lower.includes(k)) return v;
+    }
+    return amenityIcons.default;
+}
+
+async function loadHotel() {
+    try {
+        const res = await fetch(`/api/hotels/${hotelId}`, { headers: authHeader() });
+        const data = await res.json();
+        hotel = data.data;
+        rooms = hotel.rooms || [];
+        renderHotel();
+        loadReviews();
+    } catch (e) {
+        document.getElementById('loading').innerHTML = '<p class="text-center text-gray-400 py-20">Failed to load hotel details.</p>';
+    }
+}
+
+function renderHotel() {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+    document.getElementById('hotel-name').textContent = hotel.name;
+    document.getElementById('hotel-city').textContent = hotel.city;
+    const img = document.getElementById('hotel-image');
+    img.src = hotel.imagePath || hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';
+    img.alt = hotel.name;
+    document.getElementById('hotel-description').textContent = hotel.description || 'No description available.';
+    document.getElementById('hotel-rating').textContent = hotel.averageRating ? hotel.averageRating.toFixed(1) : '—';
+    document.getElementById('stars-container').innerHTML = renderStars(hotel.averageRating);
+    document.getElementById('reviews-count').textContent = `${hotel.totalReviews} review${hotel.totalReviews !== 1 ? 's' : ''}`;
+
+    // Amenities
+    const amenities = (hotel.amenities || '').split(',').filter(a => a.trim());
+    const grid = document.getElementById('amenities-grid');
+    grid.innerHTML = amenities.map(a => `
+        <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl">
+            <span class="text-lg">${getAmenityIcon(a)}</span>
+            <span class="text-sm text-gray-700">${a.trim()}</span>
+        </div>
+    `).join('') || '<p class="text-gray-400 text-sm">No amenities listed</p>';
+
+    // Rooms
+    const roomsList = document.getElementById('rooms-list');
+    const select = document.getElementById('room-select');
+    select.innerHTML = '<option value="">Select room type</option>';
+    roomsList.innerHTML = rooms.map(r => {
+        const typeColors = { STANDARD: 'blue', DELUXE: 'purple', SUITE: 'yellow' };
+        const c = typeColors[r.roomType] || 'gray';
+        select.innerHTML += `<option value="${r.id}">${r.roomType} - ₹${r.pricePerNight}/night (${r.availableRooms} available)</option>`;
+        return `
+        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50/30 transition">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-${c}-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-${c}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div>
+                    <div class="font-semibold text-gray-800">${r.roomType}</div>
+                    <div class="text-sm text-gray-500">👥 Up to ${r.capacity} guests • ${r.availableRooms} rooms left</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-600 font-bold text-lg">₹${Number(r.pricePerNight).toLocaleString('en-IN')}</div>
+                <div class="text-xs text-gray-400">per night</div>
+            </div>
+        </div>`;
+    }).join('') || '<p class="text-gray-400 text-sm">No rooms available at this time.</p>';
+}
+
+async function loadReviews() {
+    const container = document.getElementById('reviews-list');
+    const token = localStorage.getItem('oyo_token');
+    if (!token) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Login to view reviews.</p>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/reviews/hotel/${hotelId}`, { headers: authHeader() });
+        if (!res.ok) {
+            container.innerHTML = '<p class="text-gray-400 text-sm">Failed to load reviews.</p>';
+            return;
+        }
+        const data = await res.json();
+        const reviews = data.data || [];
+        if (reviews.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-sm">No reviews yet. Be the first to review!</p>';
+            return;
+        }
+        container.innerHTML = reviews.map(r => `
+            <div class="border-b border-gray-100 pb-4 mb-4 last:border-0">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-sm">${(r.userName||'U')[0].toUpperCase()}</div>
+                    <div>
+                        <div class="font-medium text-gray-800 text-sm">${r.userName || 'Guest'}</div>
+                        <div class="flex gap-0.5">${renderStars(r.rating)}</div>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">${r.comment}</p>
+            </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Failed to load reviews.</p>';
+    }
+}
+
+function resetReviewStars() {
+    selectedRating = 0;
+    const stars = document.querySelectorAll('#review-form .review-star');
+    stars.forEach(star => {
+        star.classList.add('text-gray-300');
+        star.classList.remove('text-yellow-400');
+    });
+}
+
+function setupReviewForm() {
+    const reviewForm = document.getElementById('review-form');
+    const submitBtn = document.getElementById('review-submit-btn');
+    const commentEl = document.getElementById('review-comment');
+    const errorEl = document.getElementById('review-error');
+    if (!reviewForm || !submitBtn || !commentEl) return;
+
+    const token = localStorage.getItem('oyo_token');
+    if (!token) {
+        reviewForm.classList.add('hidden');
+        return;
+    }
+
+    reviewForm.classList.remove('hidden');
+
+    const stars = reviewForm.querySelectorAll('.review-star');
+
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const v = parseInt(star.dataset.val, 10);
+            if (!Number.isFinite(v)) return;
+            selectedRating = v;
+            stars.forEach(s => {
+                const sv = parseInt(s.dataset.val, 10);
+                const on = sv <= selectedRating;
+                s.classList.toggle('text-yellow-400', on);
+                s.classList.toggle('text-gray-300', !on);
+            });
+        });
+    });
+
+    // Ensure visuals match initial state
+    resetReviewStars();
+
+    submitBtn.addEventListener('click', async () => {
+        try {
+            if (!selectedRating) {
+                errorEl.textContent = 'Please select a rating.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            const comment = (commentEl.value || '').trim();
+            if (!comment) {
+                errorEl.textContent = 'Please write a comment.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+
+            const res = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: authHeader(),
+                body: JSON.stringify({
+                    hotelId: Number(hotelId),
+                    rating: selectedRating,
+                    comment
+                })
+            });
+
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                const message = data?.message || 'Failed to submit review.';
+                throw new Error(message);
+            }
+
+            // Success: clear + reset + refresh UI without reload
+            commentEl.value = '';
+            resetReviewStars();
+            await loadReviews();
+            await refreshHotelBadge();
+            alert('Review submitted!');
+        } catch (e) {
+            errorEl.textContent = e?.message || 'Network error.';
+            errorEl.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Review';
+        }
+    });
+}
+
+async function refreshHotelBadge() {
+    try {
+        const res = await fetch(`/api/hotels/${hotelId}`, { headers: authHeader() });
+        if (!res.ok) return;
+        const data = await res.json();
+        const updated = data.data;
+        if (!updated) return;
+
+        hotel = updated;
+        document.getElementById('hotel-rating').textContent = updated.averageRating ? updated.averageRating.toFixed(1) : '—';
+        document.getElementById('stars-container').innerHTML = renderStars(updated.averageRating);
+        document.getElementById('reviews-count').textContent = `${updated.totalReviews} review${updated.totalReviews !== 1 ? 's' : ''}`;
+    } catch (e) {
+        // Badge will refresh on next navigation; ignore
+    }
+}
+
+function calculatePrice() {
+    const roomId = document.getElementById('room-select').value;
+    const checkin = document.getElementById('checkin').value;
+    const checkout = document.getElementById('checkout').value;
+    const numRooms = parseInt(document.getElementById('num-rooms').value) || 1;
+    const preview = document.getElementById('price-preview');
+    if (!roomId || !checkin || !checkout) { preview.classList.add('hidden'); return; }
+    const room = rooms.find(r => r.id == roomId);
+    if (!room) return;
+    const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000*60*60*24));
+    if (nights <= 0) { preview.classList.add('hidden'); return; }
+    const total = room.pricePerNight * nights * numRooms;
+    document.getElementById('price-label').textContent = `₹${room.pricePerNight} × ${numRooms} room${numRooms>1?'s':''}`;
+    document.getElementById('price-val').textContent = `₹${(room.pricePerNight * numRooms).toLocaleString('en-IN')}`;
+    document.getElementById('nights-val').textContent = nights + ` night${nights>1?'s':''}`;
+    document.getElementById('total-val').textContent = `₹${total.toLocaleString('en-IN')}`;
+    preview.classList.remove('hidden');
+}
+
+['room-select','checkin','checkout','num-rooms'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', calculatePrice);
+});
+
+// Set min dates
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('checkin').min = today;
+document.getElementById('checkout').min = today;
+document.getElementById('checkin').addEventListener('change', () => {
+    document.getElementById('checkout').min = document.getElementById('checkin').value;
+});
+
+async function initiateBooking() {
+    const token = localStorage.getItem('oyo_token');
+    if (!token) { window.location.href = '/login'; return; }
+    const user = JSON.parse(localStorage.getItem('oyo_user') || '{}');
+    if (user.role === 'HOTEL_OWNER') {
+        document.getElementById('booking-error').textContent = 'Hotel owners cannot make bookings.';
+        document.getElementById('booking-error').classList.remove('hidden');
+        return;
+    }
+    const roomId = document.getElementById('room-select').value;
+    const checkin = document.getElementById('checkin').value;
+    const checkout = document.getElementById('checkout').value;
+    const numRooms = parseInt(document.getElementById('num-rooms').value) || 1;
+    if (!roomId || !checkin || !checkout) {
+        document.getElementById('booking-error').textContent = 'Please fill all booking details.';
+        document.getElementById('booking-error').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('book-btn').textContent = 'Booking...';
+    document.getElementById('book-btn').disabled = true;
+    document.getElementById('booking-error').classList.add('hidden');
+    try {
+        const res = await fetch('/api/bookings', {
+            method: 'POST',
+            headers: authHeader(),
+            body: JSON.stringify({ roomId: parseInt(roomId), checkInDate: checkin, checkOutDate: checkout, numberOfRooms: numRooms })
+        });
+        const data = await res.json();
+        if (data.success) {
+            sessionStorage.setItem('currentBooking', JSON.stringify(data.data));
+            window.location.href = '/booking/checkout';
+        } else {
+            document.getElementById('booking-error').textContent = data.message || 'Booking failed.';
+            document.getElementById('booking-error').classList.remove('hidden');
+        }
+    } catch(e) {
+        document.getElementById('booking-error').textContent = 'Network error. Please try again.';
+        document.getElementById('booking-error').classList.remove('hidden');
+    } finally {
+        document.getElementById('book-btn').textContent = 'Book Now';
+        document.getElementById('book-btn').disabled = false;
+    }
+}
+
+setupNav();
+setupReviewForm();
+loadHotel();
+</script>
+</body>
+</html>

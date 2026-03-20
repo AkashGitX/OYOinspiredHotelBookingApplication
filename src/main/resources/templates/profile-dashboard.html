@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Profile - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-600 hover:text-red-600 text-sm">Hotels</a>
+            <span class="text-red-600 text-sm font-semibold border-b-2 border-red-600 pb-1">My Trips</span>
+            <button onclick="logout()" class="text-gray-500 hover:text-red-600 text-sm">Sign Out</button>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+    <!-- Header -->
+    <div class="flex items-center gap-5 mb-10">
+        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-2xl" id="profile-avatar">U</div>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800" id="profile-name">User Name</h1>
+            <p class="text-gray-500 text-sm" id="profile-email">user@email.com</p>
+        </div>
+    </div>
+
+    <!-- Tab Nav -->
+    <div class="flex gap-1 mb-8 bg-gray-200 p-1 rounded-xl w-fit">
+        <button onclick="showTab('upcoming')" id="tab-upcoming"
+                class="tab-btn active-tab px-5 py-2 rounded-lg text-sm font-medium transition">
+            Upcoming Trips
+        </button>
+        <button onclick="showTab('past')" id="tab-past"
+                class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-gray-600 transition">
+            Past Trips
+        </button>
+        <button onclick="showTab('all')" id="tab-all"
+                class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-gray-600 transition">
+            All Bookings
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center py-20">
+        <svg class="w-10 h-10 animate-spin text-red-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+    </div>
+
+    <!-- Bookings container -->
+    <div id="bookings-container" class="hidden space-y-4"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden text-center py-20">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <h3 class="text-xl font-semibold text-gray-500 mb-2">No bookings found</h3>
+        <p class="text-gray-400 mb-6">Start exploring hotels and book your stay!</p>
+        <a href="/" class="bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700 transition">Browse Hotels</a>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="font-bold text-gray-800 text-lg">Write a Review</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <div id="review-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+        <p class="text-sm text-gray-500 mb-4">Hotel: <span id="review-hotel-name" class="font-semibold text-gray-700"></span></p>
+        <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+            <div class="flex gap-2" id="star-rating">
+                <span class="star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="1">★</span>
+                <span class="star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="2">★</span>
+                <span class="star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="3">★</span>
+                <span class="star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="4">★</span>
+                <span class="star text-3xl cursor-pointer text-gray-300 hover:text-yellow-400 transition" data-val="5">★</span>
+            </div>
+        </div>
+        <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Your experience</label>
+            <textarea id="review-comment" rows="4" placeholder="Share your experience..."
+                      class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm resize-none"></textarea>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="closeModal()" class="flex-1 border-2 border-gray-200 text-gray-600 py-2.5 rounded-xl font-medium text-sm hover:border-gray-300">Cancel</button>
+            <button onclick="submitReview()" id="review-btn" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-red-700">Submit Review</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedRating = 0;
+let reviewHotelId = null;
+let allBookings = [];
+
+function logout() { localStorage.removeItem('oyo_token'); localStorage.removeItem('oyo_user'); window.location.href = '/login'; }
+function authHeader() {
+    const t = localStorage.getItem('oyo_token');
+    return { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' };
+}
+
+const user = JSON.parse(localStorage.getItem('oyo_user') || '{}');
+if (!localStorage.getItem('oyo_token') || user.role === 'HOTEL_OWNER') window.location.href = '/';
+
+document.getElementById('profile-name').textContent = user.fullName || 'Guest';
+document.getElementById('profile-email').textContent = user.email || '';
+document.getElementById('profile-avatar').textContent = (user.fullName || 'G')[0].toUpperCase();
+
+const statusStyles = {
+    CONFIRMED: 'bg-green-100 text-green-700',
+    PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700',
+    CANCELLED: 'bg-red-100 text-red-700',
+    COMPLETED: 'bg-blue-100 text-blue-700'
+};
+const statusLabels = { CONFIRMED:'Confirmed', PENDING_PAYMENT:'Pending Payment', CANCELLED:'Cancelled', COMPLETED:'Completed' };
+
+function renderBooking(b, showReview = false) {
+    const isUpcoming = new Date(b.checkOutDate) >= new Date();
+    const badge = `<span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusStyles[b.status] || 'bg-gray-100 text-gray-600'}">${statusLabels[b.status] || b.status}</span>`;
+    return `
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+        <div class="flex flex-col md:flex-row md:items-center gap-4">
+            <div class="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=160" class="w-full h-full object-cover" alt="Hotel"/>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-base">${b.hotelName || '—'}</h3>
+                        <p class="text-gray-500 text-sm flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                            ${b.hotelCity || ''}
+                        </p>
+                    </div>
+                    ${badge}
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-xs text-gray-500 mt-3">
+                    <div><div class="font-medium text-gray-700">${new Date(b.checkInDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div><div>Check-in</div></div>
+                    <div><div class="font-bold text-red-600 text-sm">${b.numberOfNights} nights</div><div>${b.numberOfRooms} room${b.numberOfRooms>1?'s':''}</div></div>
+                    <div><div class="font-medium text-gray-700">${new Date(b.checkOutDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div><div>Check-out</div></div>
+                </div>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <div class="text-red-600 font-bold text-xl">₹${Number(b.totalPrice).toLocaleString('en-IN')}</div>
+                <div class="text-gray-400 text-xs mb-3">${b.roomType || 'Room'}</div>
+                <div class="flex flex-col gap-2">
+                    ${b.status === 'CONFIRMED' && isUpcoming ? `<button onclick="cancelBooking(${b.id})" class="text-xs border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">Cancel</button>` : ''}
+                    ${(b.status === 'CONFIRMED' || b.status === 'COMPLETED') && !isUpcoming ? `<button onclick="openReview(${b.id}, '${(b.hotelName||'').replace(/'/g,"\\'")}', ${b.hotelId || 0})" class="text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100 px-3 py-1.5 rounded-lg transition">Write Review</button>` : ''}
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'bg-white', 'shadow-sm', 'text-gray-800'));
+    document.getElementById(`tab-${tab}`).classList.add('active-tab', 'bg-white', 'shadow-sm', 'text-gray-800');
+    let filtered = allBookings;
+    if (tab === 'upcoming') filtered = allBookings.filter(b => new Date(b.checkOutDate) >= new Date());
+    if (tab === 'past') filtered = allBookings.filter(b => new Date(b.checkOutDate) < new Date());
+    renderBookings(filtered);
+}
+
+function renderBookings(bookings) {
+    const container = document.getElementById('bookings-container');
+    const empty = document.getElementById('empty-state');
+    if (bookings.length === 0) {
+        container.classList.add('hidden');
+        empty.classList.remove('hidden');
+    } else {
+        empty.classList.add('hidden');
+        container.classList.remove('hidden');
+        container.innerHTML = bookings.map(b => renderBooking(b)).join('');
+    }
+}
+
+async function loadBookings() {
+    try {
+        const res = await fetch('/api/bookings', { headers: authHeader() });
+        const data = await res.json();
+        allBookings = data.data || [];
+        document.getElementById('loading').classList.add('hidden');
+        showTab('upcoming');
+    } catch(e) {
+        document.getElementById('loading').innerHTML = '<p class="text-center text-gray-400 py-10">Failed to load bookings.</p>';
+    }
+}
+
+async function cancelBooking(id) {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    const res = await fetch(`/api/bookings/${id}/cancel`, { method: 'PUT', headers: authHeader() });
+    const data = await res.json();
+    if (data.success) loadBookings();
+}
+
+function openReview(bookingId, hotelName, hotelId) {
+    reviewHotelId = hotelId;
+    document.getElementById('review-hotel-name').textContent = hotelName;
+    document.getElementById('review-modal').classList.remove('hidden');
+    document.getElementById('review-comment').value = '';
+    selectedRating = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.replace('text-yellow-400', 'text-gray-300'));
+}
+function closeModal() { document.getElementById('review-modal').classList.add('hidden'); }
+
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.val);
+        document.querySelectorAll('.star').forEach((s, i) => {
+            s.classList.toggle('text-yellow-400', i < selectedRating);
+            s.classList.toggle('text-gray-300', i >= selectedRating);
+        });
+    });
+});
+
+async function submitReview() {
+    if (!selectedRating) { document.getElementById('review-error').textContent='Please select a rating.'; document.getElementById('review-error').classList.remove('hidden'); return; }
+    const comment = document.getElementById('review-comment').value.trim();
+    if (!comment) { document.getElementById('review-error').textContent='Please write a comment.'; document.getElementById('review-error').classList.remove('hidden'); return; }
+    document.getElementById('review-btn').textContent = 'Submitting...';
+    document.getElementById('review-btn').disabled = true;
+    document.getElementById('review-error').classList.add('hidden');
+    try {
+        const res = await fetch('/api/reviews', {
+            method: 'POST', headers: authHeader(),
+            body: JSON.stringify({ hotelId: reviewHotelId, rating: selectedRating, comment })
+        });
+        const data = await res.json();
+        if (data.success) { closeModal(); alert('Review submitted!'); }
+        else {
+            document.getElementById('review-error').textContent = data.message || 'Failed to submit review.';
+            document.getElementById('review-error').classList.remove('hidden');
+        }
+    } catch(e) {
+        document.getElementById('review-error').textContent = 'Network error.';
+        document.getElementById('review-error').classList.remove('hidden');
+    } finally {
+        document.getElementById('review-btn').textContent = 'Submit Review';
+        document.getElementById('review-btn').disabled = false;
+    }
+}
+
+loadBookings();
+</script>
+<style>
+.active-tab { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #1f2937; }
+</style>
+</body>
+</html>

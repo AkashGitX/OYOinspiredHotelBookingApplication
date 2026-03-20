@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Account - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-orange-50 min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-md">
+    <div class="text-center mb-8">
+        <a href="/" class="inline-flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-2xl px-4 py-2 rounded-xl">OYO</div>
+        </a>
+        <h1 class="mt-4 text-2xl font-bold text-gray-800">Create your account</h1>
+        <p class="text-gray-500 mt-1">Join thousands of travelers</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div id="error-msg" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+        <form id="register-form" class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" id="fullName" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                       placeholder="John Doe"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                <input type="email" id="email" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                       placeholder="you@example.com"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" required minlength="6"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                       placeholder="Minimum 6 characters"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">I am a...</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="role-option cursor-pointer" data-role="USER">
+                        <input type="radio" name="role" value="USER" class="hidden" checked/>
+                        <div class="border-2 border-gray-200 rounded-xl p-4 text-center hover:border-red-400 transition role-card selected-role">
+                            <svg class="w-8 h-8 mx-auto mb-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            <div class="font-semibold text-gray-700">Guest</div>
+                            <div class="text-xs text-gray-500">Book hotels</div>
+                        </div>
+                    </label>
+                    <label class="role-option cursor-pointer" data-role="HOTEL_OWNER">
+                        <input type="radio" name="role" value="HOTEL_OWNER" class="hidden"/>
+                        <div class="border-2 border-gray-200 rounded-xl p-4 text-center hover:border-red-400 transition role-card">
+                            <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <div class="font-semibold text-gray-700">Hotel Owner</div>
+                            <div class="text-xs text-gray-500">List hotels</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <button type="submit" id="submit-btn"
+                    class="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                <span id="btn-text">Create Account</span>
+                <svg id="btn-spinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-500 text-sm">Already have an account?
+                <a href="/login" class="text-red-600 font-semibold hover:underline">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Role card selection
+document.querySelectorAll('.role-option').forEach(label => {
+    label.addEventListener('click', () => {
+        document.querySelectorAll('.role-card').forEach(c => {
+            c.classList.remove('selected-role', 'border-red-500');
+            c.classList.add('border-gray-200');
+            c.querySelector('svg') && c.querySelector('svg').classList.replace('text-red-500', 'text-gray-400');
+        });
+        const card = label.querySelector('.role-card');
+        card.classList.add('selected-role', 'border-red-500');
+        card.classList.remove('border-gray-200');
+        card.querySelector('svg') && card.querySelector('svg').classList.replace('text-gray-400', 'text-red-500');
+        label.querySelector('input').checked = true;
+    });
+});
+
+function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+function setLoading(loading) {
+    const btn = document.getElementById('submit-btn');
+    document.getElementById('btn-text').textContent = loading ? 'Creating...' : 'Create Account';
+    document.getElementById('btn-spinner').classList.toggle('hidden', !loading);
+    btn.disabled = loading;
+}
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('error-msg').classList.add('hidden');
+    const role = document.querySelector('input[name="role"]:checked').value;
+    setLoading(true);
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: role
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            localStorage.setItem('oyo_token', data.data.token);
+            localStorage.setItem('oyo_user', JSON.stringify(data.data));
+            window.location.href = data.data.role === 'HOTEL_OWNER' ? '/owner/dashboard' : '/';
+        } else {
+            showError(data.message || 'Registration failed. Please try again.');
+        }
+    } catch (err) {
+        showError('Network error. Please try again.');
+    } finally {
+        setLoading(false);
+    }
+});
+</script>
+<style>
+.selected-role { border-color: #dc2626 !important; }
+.selected-role svg { color: #dc2626 !important; }
+</style>
+</body>
+</html>

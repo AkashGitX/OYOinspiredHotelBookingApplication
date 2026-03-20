@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Owner Dashboard - OYO Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-red-600 text-white font-bold text-xl px-3 py-1 rounded-lg">OYO</div>
+            <span class="text-sm text-gray-500 font-medium hidden sm:block">Owner Panel</span>
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-500 hover:text-red-600 text-sm">View Site</a>
+            <button onclick="logout()" class="text-gray-500 hover:text-red-600 text-sm">Sign Out</button>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Welcome Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Owner Dashboard</h1>
+            <p class="text-gray-500 text-sm mt-1">Manage your hotels and rooms</p>
+        </div>
+        <button onclick="showTab('add-hotel')"
+                class="bg-red-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-red-700 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add New Hotel
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="text-3xl font-bold text-red-600" id="stat-hotels">0</div>
+            <div class="text-gray-500 text-sm mt-1">Total Hotels</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="text-3xl font-bold text-blue-600" id="stat-rooms">0</div>
+            <div class="text-gray-500 text-sm mt-1">Room Types</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="text-3xl font-bold text-green-600" id="stat-available">0</div>
+            <div class="text-gray-500 text-sm mt-1">Available Rooms</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="text-3xl font-bold text-purple-600" id="stat-cities">0</div>
+            <div class="text-gray-500 text-sm mt-1">Cities</div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex gap-1 mb-6 bg-gray-200 p-1 rounded-xl w-fit">
+        <button onclick="showTab('hotels')" id="tab-hotels" class="tab-btn active-tab px-5 py-2 rounded-lg text-sm font-medium transition">My Hotels</button>
+        <button onclick="showTab('add-hotel')" id="tab-add-hotel" class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-gray-600 transition">Add Hotel</button>
+        <button onclick="showTab('add-room')" id="tab-add-room" class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-gray-600 transition">Add Room</button>
+    </div>
+
+    <!-- My Hotels Tab -->
+    <div id="pane-hotels">
+        <div id="hotels-loading" class="flex justify-center py-16">
+            <svg class="w-10 h-10 animate-spin text-red-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+        </div>
+        <div id="hotels-list" class="hidden space-y-4"></div>
+        <div id="no-hotels" class="hidden text-center py-20">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <h3 class="text-xl font-semibold text-gray-500 mb-2">No hotels yet</h3>
+            <p class="text-gray-400 mb-6">Add your first hotel to get started</p>
+            <button onclick="showTab('add-hotel')" class="bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700">Add Hotel</button>
+        </div>
+    </div>
+
+    <!-- Add Hotel Tab -->
+    <div id="pane-add-hotel" class="hidden">
+        <div class="max-w-2xl">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Add New Hotel</h2>
+                <div id="hotel-success" class="hidden mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm"></div>
+                <div id="hotel-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+                <form id="add-hotel-form" class="space-y-5" enctype="multipart/form-data">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Hotel Name *</label>
+                            <input type="text" id="h-name" required placeholder="OYO Grand Palace"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                            <input type="text" id="h-city" required placeholder="Mumbai"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="h-desc" rows="3" placeholder="Describe your hotel..."
+                                  class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Amenities</label>
+                        <input type="text" id="h-amenities" placeholder="WiFi, AC, Parking, Pool, Gym, Restaurant"
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        <p class="text-xs text-gray-400 mt-1">Separate with commas</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hotel Image *</label>
+                        <input type="file" id="h-image" accept="image/png,image/jpeg"
+                               class="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"/>
+                        <img id="h-image-preview" class="hidden w-full h-40 mt-3 object-cover rounded-xl border border-gray-100" src="" alt="Hotel preview"/>
+                    </div>
+                    <button type="submit" id="hotel-submit-btn"
+                            class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Create Hotel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Room Tab -->
+    <div id="pane-add-room" class="hidden">
+        <div class="max-w-2xl">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Add Room Type</h2>
+                <div id="room-success" class="hidden mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm"></div>
+                <div id="room-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+                <form id="add-room-form" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Hotel *</label>
+                        <select id="r-hotel" required class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm">
+                            <option value="">Choose a hotel...</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Room Type *</label>
+                            <select id="r-type" required class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm">
+                                <option value="">Select type</option>
+                                <option value="STANDARD">Standard</option>
+                                <option value="DELUXE">Deluxe</option>
+                                <option value="SUITE">Suite</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Price/Night (₹) *</label>
+                            <input type="number" id="r-price" required min="1" placeholder="1499"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Rooms *</label>
+                            <input type="number" id="r-total" required min="1" placeholder="10"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Capacity (guests) *</label>
+                            <input type="number" id="r-capacity" required min="1" placeholder="2"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm"/>
+                        </div>
+                    </div>
+                    <button type="submit" id="room-submit-btn"
+                            class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Add Room Type
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let myHotels = [];
+
+function logout() { localStorage.removeItem('oyo_token'); localStorage.removeItem('oyo_user'); window.location.href = '/login'; }
+function authHeader() {
+    const t = localStorage.getItem('oyo_token');
+    return { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' };
+}
+
+function authHeaderBearer() {
+    const t = localStorage.getItem('oyo_token');
+    return { 'Authorization': 'Bearer ' + t };
+}
+
+const user = JSON.parse(localStorage.getItem('oyo_user') || '{}');
+if (!localStorage.getItem('oyo_token') || user.role !== 'HOTEL_OWNER') window.location.href = '/login';
+
+// Preview uploaded image before submitting
+(() => {
+    const input = document.getElementById('h-image');
+    const preview = document.getElementById('h-image-preview');
+    if (!input || !preview) return;
+
+    let objectUrl = null;
+    input.addEventListener('change', () => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+
+        const file = input.files && input.files[0] ? input.files[0] : null;
+        if (!file) {
+            preview.src = '';
+            preview.classList.add('hidden');
+            objectUrl = null;
+            return;
+        }
+
+        objectUrl = URL.createObjectURL(file);
+        preview.src = objectUrl;
+        preview.classList.remove('hidden');
+    });
+})();
+
+function showTab(tab) {
+    ['hotels','add-hotel','add-room'].forEach(t => {
+        document.getElementById(`pane-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('active-tab','bg-white','shadow-sm','text-gray-800');
+        document.getElementById(`tab-${t}`).classList.add('text-gray-600');
+    });
+    document.getElementById(`pane-${tab}`).classList.remove('hidden');
+    document.getElementById(`tab-${tab}`).classList.add('active-tab','bg-white','shadow-sm','text-gray-800');
+    document.getElementById(`tab-${tab}`).classList.remove('text-gray-600');
+}
+
+const roomTypeColors = { STANDARD: 'bg-blue-50 text-blue-700 border-blue-200', DELUXE: 'bg-purple-50 text-purple-700 border-purple-200', SUITE: 'bg-yellow-50 text-yellow-700 border-yellow-200' };
+
+function renderHotelCard(hotel) {
+    const roomsHtml = (hotel.rooms || []).map(r => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold px-2 py-1 rounded-lg border ${roomTypeColors[r.roomType] || 'bg-gray-100 text-gray-700 border-gray-200'}">${r.roomType}</span>
+                <span class="text-xs text-gray-600">₹${Number(r.pricePerNight).toLocaleString('en-IN')}/night</span>
+                <span class="text-xs text-gray-500">👥 ${r.capacity} guests</span>
+            </div>
+            <div class="text-right">
+                <span class="text-sm font-bold text-gray-800">${r.availableRooms}</span>
+                <span class="text-xs text-gray-400">/${r.totalRooms} avail</span>
+            </div>
+        </div>
+    `).join('') || '<p class="text-gray-400 text-xs p-3">No rooms added yet</p>';
+    
+    return `
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="flex flex-col md:flex-row">
+            <div class="w-full md:w-48 h-40 bg-gray-100 flex-shrink-0">
+                <img src="${hotel.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300'}" 
+                     class="w-full h-full object-cover" alt="${hotel.name}"
+                     onerror="this.src='https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=300'"/>
+            </div>
+            <div class="flex-1 p-5">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-base">${hotel.name}</h3>
+                        <p class="text-gray-500 text-sm flex items-center gap-1 mt-0.5">
+                            <svg class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                            ${hotel.city}
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-2 py-1 rounded-lg">${hotel.approved ? 'Active' : 'Pending'}</span>
+                        <button onclick="showAddRoomForHotel(${hotel.id}, '${hotel.name.replace(/'/g,"\\'")}')" class="bg-red-50 text-red-600 border border-red-200 text-xs font-semibold px-3 py-1 rounded-lg hover:bg-red-100 transition">+ Add Room</button>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-xs line-clamp-1 mb-3">${hotel.description || ''}</p>
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="text-xs font-semibold text-gray-500 mb-2">ROOM TYPES (${(hotel.rooms||[]).length})</div>
+                    <div class="space-y-2">${roomsHtml}</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+async function loadHotels() {
+    try {
+        const res = await fetch('/api/owner/hotels', { headers: authHeader() });
+        const data = await res.json();
+        myHotels = data.data || [];
+        document.getElementById('hotels-loading').classList.add('hidden');
+        updateStats();
+        populateHotelSelect();
+        if (myHotels.length === 0) {
+            document.getElementById('no-hotels').classList.remove('hidden');
+        } else {
+            const list = document.getElementById('hotels-list');
+            list.innerHTML = myHotels.map(renderHotelCard).join('');
+            list.classList.remove('hidden');
+        }
+    } catch(e) {
+        document.getElementById('hotels-loading').innerHTML = '<p class="text-center text-gray-400 py-10">Failed to load hotels.</p>';
+    }
+}
+
+function updateStats() {
+    document.getElementById('stat-hotels').textContent = myHotels.length;
+    const allRooms = myHotels.flatMap(h => h.rooms || []);
+    document.getElementById('stat-rooms').textContent = allRooms.length;
+    document.getElementById('stat-available').textContent = allRooms.reduce((sum, r) => sum + r.availableRooms, 0);
+    document.getElementById('stat-cities').textContent = new Set(myHotels.map(h => h.city)).size;
+}
+
+function populateHotelSelect() {
+    const sel = document.getElementById('r-hotel');
+    sel.innerHTML = '<option value="">Choose a hotel...</option>';
+    myHotels.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h.id;
+        opt.textContent = `${h.name} (${h.city})`;
+        sel.appendChild(opt);
+    });
+}
+
+function showAddRoomForHotel(hotelId, hotelName) {
+    showTab('add-room');
+    document.getElementById('r-hotel').value = hotelId;
+}
+
+document.getElementById('add-hotel-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('hotel-success').classList.add('hidden');
+    document.getElementById('hotel-error').classList.add('hidden');
+    document.getElementById('hotel-submit-btn').textContent = 'Creating...';
+    document.getElementById('hotel-submit-btn').disabled = true;
+    try {
+        const imageInput = document.getElementById('h-image');
+        const imageFile = imageInput?.files && imageInput.files[0] ? imageInput.files[0] : null;
+        if (!imageFile) {
+            document.getElementById('hotel-error').textContent = 'Please choose a hotel image.';
+            document.getElementById('hotel-error').classList.remove('hidden');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', document.getElementById('h-name').value);
+        formData.append('city', document.getElementById('h-city').value);
+        formData.append('description', document.getElementById('h-desc').value);
+        formData.append('amenities', document.getElementById('h-amenities').value);
+        formData.append('image', imageFile);
+
+        const res = await fetch('/api/owner/hotels', {
+            method: 'POST',
+            headers: authHeaderBearer(),
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('hotel-success').textContent = '✓ Hotel created successfully!';
+            document.getElementById('hotel-success').classList.remove('hidden');
+            document.getElementById('add-hotel-form').reset();
+            const preview = document.getElementById('h-image-preview');
+            if (preview) {
+                preview.src = '';
+                preview.classList.add('hidden');
+            }
+            loadHotels();
+            setTimeout(() => showTab('hotels'), 1500);
+        } else {
+            document.getElementById('hotel-error').textContent = data.message || 'Failed to create hotel.';
+            document.getElementById('hotel-error').classList.remove('hidden');
+        }
+    } catch(e) {
+        document.getElementById('hotel-error').textContent = 'Network error.';
+        document.getElementById('hotel-error').classList.remove('hidden');
+    } finally {
+        document.getElementById('hotel-submit-btn').textContent = 'Create Hotel';
+        document.getElementById('hotel-submit-btn').disabled = false;
+    }
+});
+
+document.getElementById('add-room-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('room-success').classList.add('hidden');
+    document.getElementById('room-error').classList.add('hidden');
+    document.getElementById('room-submit-btn').textContent = 'Adding...';
+    document.getElementById('room-submit-btn').disabled = true;
+    const hotelId = document.getElementById('r-hotel').value;
+    try {
+        const res = await fetch(`/api/owner/hotels/${hotelId}/rooms`, {
+            method: 'POST', headers: authHeader(),
+            body: JSON.stringify({
+                roomType: document.getElementById('r-type').value,
+                pricePerNight: parseFloat(document.getElementById('r-price').value),
+                totalRooms: parseInt(document.getElementById('r-total').value),
+                capacity: parseInt(document.getElementById('r-capacity').value)
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('room-success').textContent = '✓ Room type added successfully!';
+            document.getElementById('room-success').classList.remove('hidden');
+            document.getElementById('add-room-form').reset();
+            loadHotels();
+        } else {
+            document.getElementById('room-error').textContent = data.message || 'Failed to add room.';
+            document.getElementById('room-error').classList.remove('hidden');
+        }
+    } catch(e) {
+        document.getElementById('room-error').textContent = 'Network error.';
+        document.getElementById('room-error').classList.remove('hidden');
+    } finally {
+        document.getElementById('room-submit-btn').textContent = 'Add Room Type';
+        document.getElementById('room-submit-btn').disabled = false;
+    }
+});
+
+loadHotels();
+</script>
+<style>
+.active-tab { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #1f2937; }
+</style>
+</body>
+</html>
