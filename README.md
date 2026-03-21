@@ -1,63 +1,76 @@
-🏨 OYO Inspired Hotel Booking System
+🏨 OYO Inspired Hotel Booking System  
 
-A production-style hotel booking mediator platform inspired by real-world startup architecture like OYO.
-This project simulates an end-to-end booking ecosystem including hotel discovery, secure authentication, seamless booking workflow, payment integration, and owner-side hotel management.
+A production-style hotel booking mediator platform inspired by real startup architecture like OYO.  
+This project simulates a complete end-to-end booking ecosystem including hotel discovery, secure authentication, seamless booking workflow, payment integration, and hotel owner management.
 
-Designed with a focus on scalable backend engineering, secure API design, and real deployment practices.
+Built with a strong focus on scalable backend engineering, secure API design, and real cloud deployment practices.
 
-🌐 Live Application:
-https://oyoinspiredhotelbookingapplication-production.up.railway.app/
+🌐 Live Application  
+https://oyoinspiredhotelbookingapplication-production.up.railway.app/  
 
-💻 Source Code:
-https://github.com/AkashGitX/OYOinspiredHotelBookingApplication
+💻 Source Code  
+https://github.com/AkashGitX/OYOinspiredHotelBookingApplication  
 
-🚀 Features
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ Role-based authentication (User / Hotel Owner)
-✅ Hotel search & dynamic room booking workflow
-✅ Secure checkout with Stripe payment integration
-✅ Booking lifecycle management (create / cancel / track)
-✅ Review & rating system
-✅ Owner dashboard for hotel & room management
-✅ JWT-secured REST APIs
-✅ Production deployment on cloud
+🚀 Key Features  
 
-🧠 System Design Highlights
-Designed 40+ secure REST APIs using Spring Boot & Spring Security
-Implemented JWT authentication & authorization workflow
-Optimized backend request handling to support 500+ daily requests
-Built modular layered architecture (Controller → Service → Repository)
-Ensured seamless database interaction using JPA/Hibernate
-Simulated real startup mediator-platform architecture
-🛠 Tech Stack
+✅ Role-based authentication (User / Hotel Owner)  
+✅ Hotel search and dynamic room booking workflow  
+✅ Secure checkout with Stripe payment integration  
+✅ Booking lifecycle management (create / cancel / track)  
+✅ Review and rating system  
+✅ Owner dashboard for hotel and room management  
+✅ JWT secured REST API architecture  
+✅ Cloud deployed production ready backend  
 
-Backend: Java, Spring Boot, Spring Security, JWT
-Frontend: Thymeleaf, Tailwind CSS, Vanilla JavaScript
-Database: PostgreSQL, JPA / Hibernate
-Payments: Stripe API
-Build Tool: Maven
-Deployment: Railway Cloud
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-⚙️ Run Locally
-git clone https://github.com/AkashGitX/OYOinspiredHotelBookingApplication.git
-cd OYOinspiredHotelBookingApplication
-mvn spring-boot:run
+🧠 System Design Highlights  
 
-Application runs on:
-👉 http://localhost:8080
+⚡ Developed 40+ secure REST APIs using Spring Boot  
+⚡ Implemented JWT authentication and authorization workflow  
+⚡ Optimized backend to support 500+ daily requests  
+⚡ Followed layered architecture (Controller → Service → Repository)  
+⚡ Ensured seamless data handling using JPA / Hibernate with PostgreSQL  
+⚡ Simulated real mediator startup platform architecture  
 
-🔐 Demo Credentials
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Hotel Owner
-📧 owner@oyo.com
+🛠 Tech Stack  
 
-🔑 password123
+💡 Backend → Java, Spring Boot, Spring Security, JWT  
+🎨 Frontend → Thymeleaf, Tailwind CSS, Vanilla JavaScript  
+🗄 Database → PostgreSQL, JPA / Hibernate  
+💳 Payments → Stripe API  
+⚙ Build Tool → Maven  
+☁ Deployment → Railway Cloud  
 
-User
-📧 user@oyo.com
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔑 password123
+⚙ Run Locally  
 
-🎯 Project Vision
+git clone https://github.com/AkashGitX/OYOinspiredHotelBookingApplication.git  
+cd OYOinspiredHotelBookingApplication  
+mvn spring-boot:run  
 
-This project was built to understand how real scalable booking startups are architected, focusing on backend performance, secure transactions, and production deployment mindset.
+Application runs on  
+👉 http://localhost:8080  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 Demo Credentials  
+
+👨‍💼 Hotel Owner  
+Email → owner@oyo.com  
+Password → password123  
+
+🙋 User  
+Email → user@oyo.com  
+Password → password123  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 Project Vision  
+
+Built to understand and implement real scalable booking startup architecture with focus on backend performance, secure transactions, and production deployment mindset.
