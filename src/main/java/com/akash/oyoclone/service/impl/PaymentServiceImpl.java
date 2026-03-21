@@ -61,13 +61,13 @@ public class PaymentServiceImpl implements PaymentService {
 
                             // ✅ FIXED SUCCESS REDIRECT (VERY IMPORTANT)
                             .setSuccessUrl(
-                                    "http://localhost:8080/payment/success" +
+                                    "http://${localhost:8080}/payment/success" +
                                             "?session_id={CHECKOUT_SESSION_ID}"
                             )
 
                             // ✅ FIXED CANCEL REDIRECT
                             .setCancelUrl(
-                                    "http://localhost:8080/payment/cancel" +
+                                    "http://${localhost:8080}/payment/cancel" +
                                             "?booking_id=" + bookingId
                             )
 
