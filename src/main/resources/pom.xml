@@ -103,11 +103,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Stripe Payment -->
         <dependency>
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
-            <version>${stripe.version}</version>
+            <version>28.1.0</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Spring Boot Test -->

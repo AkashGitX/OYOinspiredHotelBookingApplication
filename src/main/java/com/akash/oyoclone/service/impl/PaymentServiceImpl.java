@@ -29,7 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
 
-    @Value("${stripe.api.key}")
+    @Value("${stripe.secret.key}")
     private String stripeApiKey;
 
     @PostConstruct
