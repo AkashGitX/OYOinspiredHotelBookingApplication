@@ -61,13 +61,13 @@ public class PaymentServiceImpl implements PaymentService {
 
                             // ✅ FIXED SUCCESS REDIRECT (VERY IMPORTANT)
                             .setSuccessUrl(
-                                    "http://${localhost:8080}/payment/success" +
+                                    "http://oyoinspiredhotelbookingapplication-production.up.railway.app/payment/success" +
                                             "?session_id={CHECKOUT_SESSION_ID}"
                             )
 
                             // ✅ FIXED CANCEL REDIRECT
                             .setCancelUrl(
-                                    "http://${localhost:8080}/payment/cancel" +
+                                    "http://oyoinspiredhotelbookingapplication-production.up.railway.app/payment/cancel" +
                                             "?booking_id=" + bookingId
                             )
 
